@@ -203,12 +203,17 @@ for insight in summary['insights']:
 
 **Current (MVP):** ✓ EVM + Pose + Insights + Event Log
 
-**Next:**
-- CUDA kernels for GPU-accelerated EVM
-- 3D Gaussian Splatting gym priors
-- Multi-cam calibration
-- Opponent analysis prototype
-- USD timeline replay with annotations
+**Future Work (Implemented):** ✓ GPU acceleration, 3DGS, Multi-cam, Opponent analysis, Timeline replay
+
+**Completed Features:**
+- ✓ CUDA kernels for GPU-accelerated EVM (<10ms target)
+- ✓ 3D Gaussian Splatting gym environment priors
+- ✓ Multi-camera calibration and 3D pose fusion
+- ✓ Opponent analysis and training game recommendations
+- ✓ USD timeline replay with scrubbing and annotations
+- ✓ Face blurring for privacy-preserving export
+
+See [FUTURE_WORK.md](docs/FUTURE_WORK.md) for details
 
 ## References
 

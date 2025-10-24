@@ -1,0 +1,14 @@
+[package]
+title = "Rickson Opponent Analysis"
+description = "Opponent footage analysis and training game recommendations"
+version = "0.1.0"
+authors = ["Epistemic Systems"]
+repository = "https://github.com/epistemicSystems/rickson"
+keywords = ["opponent-analysis", "bjj", "muay-thai", "scouting"]
+
+[dependencies]
+"omni.kit.uiapp" = {}
+
+[python.module]
+root = ".."
+module = "zs.opponent"
