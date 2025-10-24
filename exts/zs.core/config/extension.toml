@@ -1,0 +1,20 @@
+[package]
+title = "Rickson Core"
+version = "0.1.0"
+description = "Core event logging and state management for Rickson training assistant"
+authors = ["Rickson Team"]
+repository = ""
+category = "Core"
+keywords = ["events", "logging", "state", "insights"]
+
+[dependencies]
+"omni.usd" = {}
+
+[python]
+module = "zs.core"
+
+[[python.module]]
+name = "zs.core"
+
+[documentation]
+pages = []
