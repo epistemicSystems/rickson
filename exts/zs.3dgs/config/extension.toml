@@ -1,0 +1,16 @@
+[package]
+title = "Rickson 3D Gaussian Splatting"
+description = "3D Gaussian Splatting gym environment priors for constrained pose estimation"
+version = "0.1.0"
+authors = ["Epistemic Systems"]
+repository = "https://github.com/epistemicSystems/rickson"
+keywords = ["gaussian-splatting", "3dgs", "nerf", "gym-priors"]
+
+[dependencies]
+"omni.kit.uiapp" = {}
+"omni.usd" = {}
+"omni.ui" = {}
+
+[python.module]
+root = ".."
+module = "zs.gaussian_splats"
