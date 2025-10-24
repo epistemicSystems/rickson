@@ -7,6 +7,20 @@ and training insights following Bret Victor's principles.
 
 import omni.ui as ui
 import carb
+import asyncio
+from typing import Optional
+
+# Import EVM pipeline and video manager
+# Note: These will be available once zs.evm extension is loaded
+try:
+    from zs.evm.core.evm_pipeline import EVMPipeline
+    from zs.evm.video_input import get_video_manager
+    EVM_AVAILABLE = True
+except ImportError:
+    carb.log_warn("[zs.ui] EVM modules not available yet")
+    EVM_AVAILABLE = False
+    EVMPipeline = None
+    get_video_manager = None
 
 
 class RicksonUIPanel:
@@ -21,6 +35,12 @@ class RicksonUIPanel:
 
         self._breath_rate = 0.0  # Breaths per minute
         self._balance_score = 0.0  # 0-100
+
+        # Pipeline state
+        self._pipeline: Optional[EVMPipeline] = None
+        self._video_manager = None
+        self._processing = False
+        self._update_task = None
 
         self._build_ui()
 
@@ -174,48 +194,103 @@ class RicksonUIPanel:
         """Handle alpha parameter change."""
         self._evm_alpha = value
         carb.log_info(f"[zs.ui] EVM Alpha changed to {value:.2f}")
-        # TODO: Send to EVM compute node via OmniGraph
+
+        # Update pipeline if running
+        if self._pipeline is not None:
+            self._pipeline.update_params(alpha=value)
 
     def _on_low_freq_changed(self, value):
         """Handle low frequency change."""
         self._evm_low_freq = value
         carb.log_info(f"[zs.ui] EVM Low Freq changed to {value:.2f} Hz")
-        # TODO: Send to EVM compute node via OmniGraph
+
+        # Update pipeline if running
+        if self._pipeline is not None:
+            self._pipeline.update_params(low_freq=value)
 
     def _on_high_freq_changed(self, value):
         """Handle high frequency change."""
         self._evm_high_freq = value
         carb.log_info(f"[zs.ui] EVM High Freq changed to {value:.2f} Hz")
-        # TODO: Send to EVM compute node via OmniGraph
+
+        # Update pipeline if running
+        if self._pipeline is not None:
+            self._pipeline.update_params(high_freq=value)
 
     def _on_levels_changed(self, value):
         """Handle pyramid levels change."""
         self._evm_levels = value
         carb.log_info(f"[zs.ui] EVM Pyramid Levels changed to {value}")
-        # TODO: Send to EVM compute node via OmniGraph
+
+        # Note: Changing levels requires recreating pipeline
+        if self._pipeline is not None and not self._processing:
+            self._create_pipeline()
 
     # Button callbacks
     def _on_start_clicked(self):
         """Handle start button click."""
         carb.log_info("[zs.ui] Start capture clicked")
+
+        if not EVM_AVAILABLE:
+            self._insights_label.text = "Error: EVM modules not available"
+            return
+
+        if self._processing:
+            carb.log_warn("[zs.ui] Already processing")
+            return
+
+        # Initialize pipeline
+        self._create_pipeline()
+
+        # Initialize video source (synthetic for now)
+        self._video_manager = get_video_manager()
+        self._video_manager.open_synthetic(
+            width=640,
+            height=480,
+            fps=30.0,
+            duration=60.0,
+            breath_freq=0.3  # 18 BPM
+        )
+
+        # Start processing
+        self._processing = True
+        self._video_manager.play()
         self._insights_label.text = "Capturing... analyzing breath patterns..."
-        # TODO: Start capture pipeline
+
+        # Start update loop
+        self._start_update_loop()
 
     def _on_pause_clicked(self):
         """Handle pause button click."""
         carb.log_info("[zs.ui] Pause clicked")
+
+        if self._video_manager is not None:
+            self._video_manager.pause()
+
+        self._processing = False
         self._insights_label.text = "Paused - adjust parameters and resume"
-        # TODO: Pause capture pipeline
 
     def _on_reset_clicked(self):
         """Handle reset button click."""
         carb.log_info("[zs.ui] Reset clicked")
+
+        # Stop processing
+        self._processing = False
+
+        # Reset metrics
         self._breath_rate = 0.0
         self._balance_score = 0.0
         self._breath_label.text = f"{self._breath_rate:.1f} BPM"
         self._balance_label.text = f"{self._balance_score:.1f}%"
         self._insights_label.text = "Reset - ready to capture"
-        # TODO: Reset pipeline state
+
+        # Reset pipeline
+        if self._pipeline is not None:
+            self._pipeline.reset()
+
+        # Reset video
+        if self._video_manager is not None:
+            self._video_manager.reset()
 
     def _on_explain_clicked(self):
         """Handle explain button click - show derivation graph."""
@@ -227,6 +302,104 @@ class RicksonUIPanel:
         )
         # TODO: Open OmniGraph visualization window
 
+    def _create_pipeline(self):
+        """Create or recreate EVM pipeline with current parameters."""
+        if not EVM_AVAILABLE:
+            return
+
+        fps = 30.0  # Default FPS
+        if self._video_manager is not None:
+            fps = self._video_manager.get_fps()
+
+        self._pipeline = EVMPipeline(
+            fps=fps,
+            low_freq=self._evm_low_freq,
+            high_freq=self._evm_high_freq,
+            alpha=self._evm_alpha,
+            pyramid_levels=self._evm_levels,
+            buffer_seconds=10.0,
+            wavelength_attenuation=True
+        )
+
+        carb.log_info(f"[zs.ui] Created EVM pipeline: "
+                     f"alpha={self._evm_alpha}, "
+                     f"band=[{self._evm_low_freq}, {self._evm_high_freq}] Hz, "
+                     f"levels={self._evm_levels}")
+
+    def _start_update_loop(self):
+        """Start async update loop to process frames."""
+        if self._update_task is not None:
+            return  # Already running
+
+        async def update_loop():
+            """Process frames in loop."""
+            carb.log_info("[zs.ui] Update loop started")
+
+            while self._processing:
+                # Read frame
+                if self._video_manager is None:
+                    break
+
+                frame = self._video_manager.read_frame()
+
+                if frame is None:
+                    # End of video
+                    carb.log_info("[zs.ui] End of video")
+                    self._processing = False
+                    self._insights_label.text = "Video completed. Click Start to replay."
+                    break
+
+                # Process through EVM pipeline
+                if self._pipeline is not None:
+                    try:
+                        amplified_frame, metrics = self._pipeline.process_frame(frame)
+
+                        # Update UI metrics
+                        self._breath_rate = metrics['breath_rate_bpm']
+                        self._breath_label.text = f"{self._breath_rate:.1f} BPM"
+
+                        # Update confidence indicator
+                        conf = metrics.get('breath_confidence', 0.0)
+                        if conf > 0.8:
+                            status = "High confidence"
+                        elif conf > 0.5:
+                            status = "Medium confidence"
+                        elif conf > 0.2:
+                            status = "Low confidence"
+                        else:
+                            status = "Warming up..."
+
+                        if self._breath_rate > 0:
+                            self._insights_label.text = (
+                                f"Breathing at {self._breath_rate:.1f} BPM. {status}. "
+                                f"Frame {metrics['frame_count']}"
+                            )
+                    except Exception as e:
+                        carb.log_error(f"[zs.ui] Error processing frame: {e}")
+                        self._processing = False
+                        self._insights_label.text = f"Error: {e}"
+                        break
+
+                # Yield control (run at ~30fps)
+                await asyncio.sleep(0.033)
+
+            carb.log_info("[zs.ui] Update loop stopped")
+            self._update_task = None
+
+        # Start task
+        self._update_task = asyncio.ensure_future(update_loop())
+
     def destroy(self):
         """Clean up resources."""
         carb.log_info("[zs.ui] Panel destroyed")
+
+        # Stop processing
+        self._processing = False
+
+        # Release video
+        if self._video_manager is not None:
+            self._video_manager.release()
+
+        # Cancel update task
+        if self._update_task is not None:
+            self._update_task.cancel()

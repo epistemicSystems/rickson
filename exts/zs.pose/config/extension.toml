@@ -1,0 +1,20 @@
+[package]
+title = "Rickson Pose Estimation"
+version = "0.1.0"
+description = "Pose estimation and balance analysis for martial arts training"
+authors = ["Rickson Team"]
+repository = ""
+category = "AI"
+keywords = ["pose", "mediapipe", "balance", "tracking"]
+
+[dependencies]
+"omni.usd" = {}
+
+[python]
+module = "zs.pose"
+
+[[python.module]]
+name = "zs.pose"
+
+[documentation]
+pages = []
