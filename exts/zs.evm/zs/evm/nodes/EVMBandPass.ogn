@@ -1,0 +1,60 @@
+{
+    "EVMBandPass": {
+        "version": 1,
+        "description": "Temporal band-pass filter for Eulerian Video Magnification",
+        "language": "Python",
+        "categories": ["video", "evm", "filter"],
+        "metadata": {
+            "uiName": "EVM Band-Pass Filter"
+        },
+        "inputs": {
+            "frame": {
+                "type": "token[]",
+                "description": "Input video frame",
+                "uiName": "Frame"
+            },
+            "alpha": {
+                "type": "float",
+                "description": "Amplification factor",
+                "default": 10.0,
+                "uiName": "Alpha"
+            },
+            "low_freq": {
+                "type": "float",
+                "description": "Lower frequency cutoff (Hz)",
+                "default": 0.1,
+                "uiName": "Low Freq (Hz)"
+            },
+            "high_freq": {
+                "type": "float",
+                "description": "Upper frequency cutoff (Hz)",
+                "default": 0.7,
+                "uiName": "High Freq (Hz)"
+            },
+            "fps": {
+                "type": "float",
+                "description": "Video framerate",
+                "default": 30.0,
+                "uiName": "FPS"
+            },
+            "pyramid_level": {
+                "type": "int",
+                "description": "Current pyramid level (0 = finest)",
+                "default": 0,
+                "uiName": "Pyramid Level"
+            }
+        },
+        "outputs": {
+            "filtered_frame": {
+                "type": "token[]",
+                "description": "Temporally filtered frame",
+                "uiName": "Filtered Frame"
+            },
+            "breath_estimate": {
+                "type": "float",
+                "description": "Estimated breath rate (BPM)",
+                "uiName": "Breath Rate (BPM)"
+            }
+        }
+    }
+}

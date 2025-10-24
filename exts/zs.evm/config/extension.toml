@@ -1,0 +1,22 @@
+[package]
+title = "Rickson EVM Compute"
+version = "0.1.0"
+description = "Eulerian Video Magnification compute nodes for breath analysis"
+authors = ["Rickson Team"]
+repository = ""
+category = "Graph"
+keywords = ["evm", "video", "magnification", "omnigraph", "compute"]
+
+[dependencies]
+"omni.graph" = {}
+"omni.graph.core" = {}
+"omni.usd" = {}
+
+[python]
+module = "zs.evm"
+
+[[python.module]]
+name = "zs.evm"
+
+[documentation]
+pages = []

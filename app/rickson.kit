@@ -1,0 +1,45 @@
+[package]
+title = "Rickson - BJJ/Muay Thai Mocap Training Assistant"
+version = "0.1.0"
+description = "Local-first markerless mocap training assistant with breath analysis and pose tracking"
+authors = ["Rickson Team"]
+keywords = ["bjj", "muay-thai", "mocap", "evm", "training"]
+
+[dependencies]
+"omni.kit.uiapp" = {}
+"omni.kit.renderer.core" = {}
+"omni.kit.viewport.window" = {}
+"omni.usd" = {}
+"omni.hydra.rtx" = {}
+"omni.kit.window.stage" = {}
+"omni.kit.window.property" = {}
+"omni.kit.window.console" = {}
+"omni.kit.window.extensions" = {}
+"omni.graph" = {}
+"omni.graph.ui" = {}
+"omni.graph.nodes" = {}
+"zs.ui" = {}
+"zs.evm" = {}
+
+[settings]
+app.name = "Rickson"
+app.window.title = "Rickson - Mocap Training Assistant"
+app.window.width = 1920
+app.window.height = 1080
+app.window.x = 0
+app.window.y = 0
+
+# Viewport settings
+renderer.enabled = "rtx"
+renderer.active = "rtx"
+rtx.translucency.enabled = true
+rtx.directLighting.sampledLighting.enabled = true
+
+# USD settings
+omni.usd.defaultPrimType = "Xform"
+
+# Extension search paths
+exts.folders.'++' = ["${app}/../exts"]
+
+# Auto-enable our extensions
+extensions.autoEnable = true
