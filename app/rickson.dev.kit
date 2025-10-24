@@ -1,0 +1,30 @@
+[package]
+title = "Rickson - Dev Mode"
+version = "0.1.0"
+description = "Development configuration with hot-reload and debugging"
+
+# Inherit from main config
+[dependencies]
+"rickson" = {}
+
+[settings]
+# Development features
+exts.hotReload.enabled = true
+app.fastShutdown = false
+app.window.title = "Rickson - Dev Mode"
+
+# Console and logging
+app.content.emptyStageOnStart = false
+app.logLevel = "info"
+app.python.linting.enabled = true
+
+# Performance monitoring
+app.profilerBackend = "tracy"
+
+# Extension development
+exts.folders.'++' = ["${app}/../exts"]
+exts.folders.'++' = ["${app}/../exts-dev"]
+
+# Python debugging
+app.python.debugging.enabled = true
+app.python.debugging.port = 3000

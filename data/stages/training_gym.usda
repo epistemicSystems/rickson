@@ -1,0 +1,158 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    doc = """Rickson Training Gym - Sample USD Stage
+
+    This stage represents a basic training gym setup with:
+    - Camera rigs for multi-cam capture
+    - Reference space for athlete tracking
+    - Placeholder for 3D Gaussian Splatting gym scan
+    """
+    endTimeCode = 1000
+    metersPerUnit = 1
+    startTimeCode = 0
+    timeCodesPerSecond = 30
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def Xform "TrainingSpace"
+    {
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+
+        def Mesh "Floor"
+        {
+            float3[] extent = [(-5, 0, -5), (5, 0, 5)]
+            int[] faceVertexCounts = [4]
+            int[] faceVertexIndices = [0, 1, 2, 3]
+            point3f[] points = [(-5, 0, -5), (5, 0, -5), (5, 0, 5), (-5, 0, 5)]
+            color3f[] primvars:displayColor = [(0.2, 0.2, 0.25)]
+            uniform token subdivisionScheme = "none"
+        }
+
+        def Xform "AthletePoseOrigin"
+        {
+            double3 xformOp:translate = (0, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+
+            # Placeholder for pose keypoints
+            # Will be populated by pose estimation pipeline
+        }
+
+        def Xform "GymScanPlaceholder"
+        {
+            double3 xformOp:translate = (0, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+
+            # Placeholder for 3D Gaussian Splatting gym scan
+            # Will be loaded from .ply or converted format
+        }
+    }
+
+    def Xform "CameraRig"
+    {
+        double3 xformOp:translate = (0, 1.5, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+
+        def Camera "MainCamera"
+        {
+            float focalLength = 24
+            float focusDistance = 5
+            float fStop = 5.6
+            float horizontalAperture = 36
+            float verticalAperture = 24
+
+            double3 xformOp:rotateXYZ = (-15, 0, 0)
+            double3 xformOp:translate = (0, 0, 8)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+
+            custom matrix4d omni:kit:cameraIntrinsics = (
+                (1920, 0, 960, 0),
+                (0, 1920, 540, 0),
+                (0, 0, 1, 0),
+                (0, 0, 0, 1)
+            )
+        }
+
+        def Camera "LeftCamera"
+        {
+            float focalLength = 24
+            float focusDistance = 5
+            float fStop = 5.6
+            float horizontalAperture = 36
+            float verticalAperture = 24
+
+            double3 xformOp:rotateXYZ = (-15, 30, 0)
+            double3 xformOp:translate = (-3, 0, 7)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+
+            custom matrix4d omni:kit:cameraIntrinsics = (
+                (1920, 0, 960, 0),
+                (0, 1920, 540, 0),
+                (0, 0, 1, 0),
+                (0, 0, 0, 1)
+            )
+        }
+
+        def Camera "RightCamera"
+        {
+            float focalLength = 24
+            float focusDistance = 5
+            float fStop = 5.6
+            float horizontalAperture = 36
+            float verticalAperture = 24
+
+            double3 xformOp:rotateXYZ = (-15, -30, 0)
+            double3 xformOp:translate = (3, 0, 7)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+
+            custom matrix4d omni:kit:cameraIntrinsics = (
+                (1920, 0, 960, 0),
+                (0, 1920, 540, 0),
+                (0, 0, 1, 0),
+                (0, 0, 0, 1)
+            )
+        }
+    }
+
+    def Xform "Lighting"
+    {
+        def DomeLight "SkyDome"
+        {
+            float intensity = 1000
+            color3f color = (1, 1, 1)
+        }
+
+        def RectLight "KeyLight"
+        {
+            float intensity = 5000
+            float width = 2
+            float height = 2
+            color3f color = (1, 0.95, 0.9)
+
+            double3 xformOp:rotateXYZ = (-45, 45, 0)
+            double3 xformOp:translate = (-3, 3, 3)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+        }
+
+        def RectLight "FillLight"
+        {
+            float intensity = 2000
+            float width = 2
+            float height = 2
+            color3f color = (0.9, 0.95, 1)
+
+            double3 xformOp:rotateXYZ = (-30, -60, 0)
+            double3 xformOp:translate = (3, 2, 2)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+        }
+    }
+
+    def Xform "HUD"
+    {
+        # Placeholder for HUD overlays
+        # Will be populated by UI extension with breath/balance metrics
+    }
+}

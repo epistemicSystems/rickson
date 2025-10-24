@@ -1,0 +1,22 @@
+[package]
+title = "Rickson UI Panel"
+version = "0.1.0"
+description = "UI panel with scrubbable EVM parameters and insights display"
+authors = ["Rickson Team"]
+repository = ""
+category = "UI"
+keywords = ["ui", "panel", "evm", "training"]
+
+[dependencies]
+"omni.kit.uiapp" = {}
+"omni.ui" = {}
+"omni.usd" = {}
+
+[python]
+module = "zs.ui"
+
+[[python.module]]
+name = "zs.ui"
+
+[documentation]
+pages = []
